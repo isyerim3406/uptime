@@ -1,21 +1,21 @@
-from flask import Flask, send_file
-import io
-import os
+from flask import Flask
+from datetime import datetime
 
 app = Flask(__name__)
 
-# Ana sayfa
-@app.route("/")
-def home():
-    return "App is alive!"
+# Basit listeyle logları saklayacağız
+ping_logs = []
 
-# Boş favicon.ico route'u (404 engelleme)
-@app.route("/favicon.ico")
-def favicon():
-    empty_icon = io.BytesIO(b'\x00\x00\x00\x00')
-    return send_file(empty_icon, mimetype='image/x-icon')
+@app.route("/")
+def index():
+    now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    ping_logs.append(now)
+    print(f"[PING] {now}")  # Render loglarında gözükecek
+    # Sadece son 10 ping’i gösterelim
+    last_pings = "<br>".join(ping_logs[-10:])
+    return f"<h3>UptimeRobot Ping Logs (last 10)</h3><p>{last_pings}</p>"
 
 if __name__ == "__main__":
-    # Render'den gelen port değişkeni
+    import os
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
