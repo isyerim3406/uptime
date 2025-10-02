@@ -1,34 +1,21 @@
+from flask import Flask, send_file
+import io
 import os
-import requests
-from flask import Flask
-from threading import Thread
-import time
 
 app = Flask(__name__)
 
-# UptimeRobot URL’i
-UPTIMEROBOT_URL = os.environ.get("UPTIMEROBOT_URL")
-
+# Ana sayfa
 @app.route("/")
 def home():
-    return "Alive!"
+    return "App is alive!"
 
-def ping_uptimerobot():
-    while True:
-        if UPTIMEROBOT_URL:
-            try:
-                r = requests.get(UPTIMEROBOT_URL, timeout=10)
-                if r.status_code == 200:
-                    print("✅ Ping successful")
-                else:
-                    print(f"⚠ Ping failed with status {r.status_code}")
-            except Exception as e:
-                print(f"❌ Ping error: {e}")
-        time.sleep(300)  # 5 dakika bekle
-
-# Thread başlat
-Thread(target=ping_uptimerobot, daemon=True).start()
+# Boş favicon.ico route'u (404 engelleme)
+@app.route("/favicon.ico")
+def favicon():
+    empty_icon = io.BytesIO(b'\x00\x00\x00\x00')
+    return send_file(empty_icon, mimetype='image/x-icon')
 
 if __name__ == "__main__":
+    # Render'den gelen port değişkeni
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
